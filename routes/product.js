@@ -54,38 +54,27 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//GET ALL USERS
-router.get("/", verifyTokenAndAdmin, async (req, res) => {
+//GET ALL Products
+router.get("/", async (req, res) => {
+  const qNew = req.query.new;
+  const qCategory = req.query.category;
   try {
-    const users = await User.find();
-    res.status(200).json({ success: true, data: users });
+    let products;
+    if (qNew) {
+      products = await Product.find().sort({ createdAt: -1 }).limit(5);
+    } else if (qCategory) {
+      products = await Product.find({
+        categories: {
+          $in: [qCategory],
+        },
+      });
+    } else {
+      products = await Product.find();
+    }
+    res.status(200).json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, msg: "Something went wrong!" });
   }
 });
-//GET USER STATS
-router.get("/info/stats", verifyTokenAndAdmin, async (req, res) => {
-  const date = new Date();
-  const lastYear = new Date(date.setFullYear(date.getFullYear() - 1));
-  try {
-    const data = await User.aggregate([
-      { $match: { createdAt: { $gte: lastYear } } },
-      {
-        $project: {
-          month: { $month: "$createdAt" },
-        },
-      },
-      {
-        $group: {
-          _id: "$month",
-          total: { $sum: 1 },
-        },
-      },
-    ]);
-    res.status(200).json({ success: true, data });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
-  }
-});
+
 module.exports = router;
