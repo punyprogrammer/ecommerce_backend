@@ -33,7 +33,8 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/product", productRoute);
 app.use("/api/v1/order", orderRoute);
 app.use("/api/v1/cart", cartRoute);
-// app.use("/api/v1/user", userRoute);
+ app.use("/api/v1/user", userRoute);
+app.use("/api/v1/checkout",stripeRoute);
 app.listen(process.env.PORT || 5000, () => {
   console.log("Backend server is running !");
 });
